@@ -11,6 +11,11 @@ use Cake\Http\Response;
 
 use App\Utils\VolantiniUtils;
 
+
+/**
+ * This controller will return Flyers in json format
+ *
+ */
 class FlyersController extends AppController
 {
 
@@ -27,8 +32,16 @@ class FlyersController extends AppController
     public function index()
     {
         $page = $this->request->getQuery('page');
-        $filters = $this->request->getQuery('filter'); 
+        if($page == null || intval($page) < 1){
+            $page = 1;
+        }
 
+        $limit = $this->request->getQuery('limit');
+        if($limit == null || intval($limit) < 1){
+            $limit = 100;
+        }
+
+        $filters = $this->request->getQuery('filter'); 
         $fields = $this->request->getQuery('fields') !== null   ?
             explode(",", $this->request->getQuery('fields'))    : 
             null;
@@ -37,21 +50,25 @@ class FlyersController extends AppController
             $notExistingFieldsList = array_diff($this->getAvailableFields(), $fields);
             if(count($notExistingFieldsList) > 0){
                 $list = implode(",", $notExistingFieldsList);
-                throw new BadRequestException("Not allowed fields: {$list}");
+                $this->set('volantini', $this->responseError(400, "Bad Request", "Not allowed fields: {$list}"));
+                $this->viewBuilder()->setOption('serialize', ['volantini']);
             }
         }
+        
 
         $notAllowedFiltersList = array_diff_key((array) $filters, $this->getAvailableFilters());
         
         if(count($notAllowedFiltersList) > 0 ){
             $list = implode(",", array_keys($notAllowedFiltersList));
-            throw new BadRequestException("Not allowed filters: {$list}.");
+            $this->set('volantini', $this->responseError(400, "Bad Request", "Not allowed filters: {$list}"));
+            $this->viewBuilder()->setOption('serialize', ['volantini']);
         }        
 
-        $responseData = $this->readCsv((array) $filters, $fields);
+        $responseData = $this->readCsv((array) $filters, $fields, $page, $limit);
 
         if(count($responseData) == 0){
-            throw new NotFoundException();
+            $this->set('volantini', $this->responseError(404, "Not found", "Not found"));
+            $this->viewBuilder()->setOption('serialize', ['volantini']);
         }
 
         $this->set('volantini', $responseData);
@@ -138,5 +155,30 @@ class FlyersController extends AppController
     private function getAvailableFilters() {
         return ["category" => 0, "is_published" => 0];
     }
+
+    private function responseError($errorCode, $message, $debug) {
+
+        $error = [
+            "success" => false,
+            "code" => $errorCode,
+            "error" => [
+                "message" => $message,
+                "debug" => $debug
+            ]
+        ];
+        return json_encode($error);
+    }
+
+    private function responseSuccess($results){
+
+        $response = [
+            "success" => true,
+            "code" => 200,
+            "results" => [
+                $results
+            ]
+        ];
+        return json_encode($response);
+    } 
 
 }
