@@ -19,5 +19,5 @@ reload server and call the application.
 ### Docker context:
 TODO
 
-### Links EndPoints examples
+### EndPoints links examples
 http://**{{HOSTNAME}}**/flyers.json?page=1&filter[is_published]=0
