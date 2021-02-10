@@ -79,7 +79,7 @@ class FlyersController extends AppController
         //key id posizione param, valore valore richiesto
         $filtersMap = [];
         //TODO relativizza path
-        if (($handle = fopen("C:/xampp/htdocs/appvolantini/CurriculumVolantino/app_volantini/webroot/flyers_data.csv", "r")) !== FALSE) {
+        if (($handle = fopen(getcwd() . "../../webroot/flyers_data.csv", "r")) !== FALSE) {
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE && $added <= $limit) {
                 $row++;
                 if(trim($data[0]) !== '' && $data[0] !== 'id'){
