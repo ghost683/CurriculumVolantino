@@ -22,20 +22,33 @@ class FlyersController extends AppController
 
     /**
      * Get all
+     * assunto: i filtri ed i field devono essere scritti nello stesso formato (case sensitive).
      */
     public function index()
     {
         $page = $this->request->getQuery('page');
         $filters = $this->request->getQuery('filter'); 
-        $fields = $this->request->getQuery('fields');
-        $notAllowedFiltersList = array_diff_key((array) $filters, ["category" => 0, "is_published" => 0]);
+
+        $fields = $this->request->getQuery('fields') !== null   ?
+            explode(",", $this->request->getQuery('fields'))    : 
+            null;
+
+        if($fields !== null && count($fields) > 0){
+            $notExistingFieldsList = array_diff($this->getAvailableFields(), $fields);
+            if(count($notExistingFieldsList) > 0){
+                $list = implode(",", $notExistingFieldsList);
+                throw new BadRequestException("Not allowed fields: {$list}");
+            }
+        }
+
+        $notAllowedFiltersList = array_diff_key((array) $filters, $this->getAvailableFilters());
         
         if(count($notAllowedFiltersList) > 0 ){
             $list = implode(",", array_keys($notAllowedFiltersList));
             throw new BadRequestException("Not allowed filters: {$list}.");
         }        
 
-        $responseData = $this->readCsv((array) $filters, $fields !== null ?explode(',', $fields) : null);
+        $responseData = $this->readCsv((array) $filters, $fields);
 
         if(count($responseData) == 0){
             throw new NotFoundException();
@@ -108,6 +121,22 @@ class FlyersController extends AppController
             fclose($handle);
         }
         return $res;
+    }
+
+    /**
+     * TODO rifattorizzare, da spostare 
+     * Scaffolding function
+     */
+    private function getAvailableFields () {
+        return ["id","title","start_date","end_date","is_published","retailer","category"];
+    }
+
+    /**
+     * TODO rifattorizzare, da spostare, trova soluzione per togliere valori
+     * quindi rimandare il compito all'utilizzatore.
+     */
+    private function getAvailableFilters() {
+        return ["category" => 0, "is_published" => 0];
     }
 
 }
