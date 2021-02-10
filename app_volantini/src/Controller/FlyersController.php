@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use Cake\Core\Configure;
 use Cake\Http\Exception\ForbiddenException;
+use Cake\Http\Exception\BadRequestException;
+
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
 
@@ -24,10 +26,22 @@ class FlyersController extends AppController
     public function index()
     {
         $page = $this->request->getQuery('page');
-        $filters = array_intersect_key((array) $this->request->getQuery('filter'), ["category" => 0, "is_published" => 0]); 
+        $filters = $this->request->getQuery('filter'); 
         $fields = $this->request->getQuery('fields');
+        $notAllowedFiltersList = array_diff_key((array) $filters, ["category" => 0, "is_published" => 0]);
+        
+        if(count($notAllowedFiltersList) > 0 ){
+            $list = implode(",", array_keys($notAllowedFiltersList));
+            throw new BadRequestException("Not allowed filters: {$list}.");
+        }        
 
-        $this->set('volantini', $this->readCsv((array) $filters, $fields !== null ?explode(',', $fields) : null));
+        $responseData = $this->readCsv((array) $filters, $fields !== null ?explode(',', $fields) : null);
+
+        if(count($responseData) == 0){
+            throw new NotFoundException();
+        }
+
+        $this->set('volantini', $responseData);
         $this->viewBuilder()->setOption('serialize', ['volantini']);
     }
 
