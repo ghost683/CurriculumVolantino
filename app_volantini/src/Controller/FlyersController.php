@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+
+
 use Cake\Core\Configure;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\BadRequestException;
@@ -9,8 +11,7 @@ use Cake\Http\Exception\BadRequestException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
 
-use App\Utils\VolantiniUtils;
-
+use App\Core\Utils\FlyersUtils;
 
 /**
  * This controller will return Flyers in json format
@@ -31,6 +32,7 @@ class FlyersController extends AppController
      */
     public function index()
     {
+
         $page = $this->request->getQuery('page');
         if($page == null || intval($page) < 1){
             $page = 1;
@@ -50,8 +52,9 @@ class FlyersController extends AppController
             $notExistingFieldsList = array_diff($this->getAvailableFields(), $fields);
             if(count($notExistingFieldsList) > 0){
                 $list = implode(",", $notExistingFieldsList);
-                $this->set('volantini', $this->responseError(400, "Bad Request", "Not allowed fields: {$list}"));
-                $this->viewBuilder()->setOption('serialize', ['volantini']);
+                return new Response([$this->responseError(400, "Bad Request", "Not allowed fields: {$list}")]);
+                /* $this->set('volantini', $this->responseError(400, "Bad Request", "Not allowed fields: {$list}"));
+                $this->viewBuilder()->setOption('serialize', ['volantini']); */
             }
         }
         
@@ -60,8 +63,10 @@ class FlyersController extends AppController
         
         if(count($notAllowedFiltersList) > 0 ){
             $list = implode(",", array_keys($notAllowedFiltersList));
-            $this->set('volantini', $this->responseError(400, "Bad Request", "Not allowed filters: {$list}"));
-            $this->viewBuilder()->setOption('serialize', ['volantini']);
+            return new Response([$this->responseError(400, "Bad Request", "Not allowed filters: {$list}")]);
+            
+            /* $this->set('volantini', $this->responseError(400, "Bad Request", "Not allowed filters: {$list}"));
+            $this->viewBuilder()->setOption('serialize', ['volantini']); */
         }        
 
         $responseData = $this->readCsv((array) $filters, $fields, $page, $limit);
@@ -70,9 +75,13 @@ class FlyersController extends AppController
             $this->set('volantini', $this->responseError(404, "Not found", "Not found"));
             $this->viewBuilder()->setOption('serialize', ['volantini']);
         }
+       /*  $response = $this->response->withStringBody($this->responseSuccess($responseData));
+        return $response; */
+        //return new Response([$this->responseSuccess($responseData)]);
 
-        $this->set('volantini', $responseData);
-        $this->viewBuilder()->setOption('serialize', ['volantini']);
+       
+        $this->set('results', $this->responseSuccess($responseData));
+        $this->viewBuilder()->setOption('serialize', ['results']);
     }
 
 
@@ -92,6 +101,7 @@ class FlyersController extends AppController
         $row = 1;
         $added = 0;
         $res = [];
+       // $headerNames;
         $headersCsvIndexes = [];
         //key id posizione param, valore valore richiesto
         $filtersMap = [];
@@ -115,7 +125,6 @@ class FlyersController extends AppController
                         $res []= $row;
                     }else {
                         $res []= $data;
-                        $row = $data;
                     }
 
                     $added++;
@@ -125,7 +134,12 @@ class FlyersController extends AppController
                     if($fields !== null){
                         foreach($fields as $field){
                             $headersCsvIndexes []= array_search($field, $data);
+                            // recupero il nome dei campi che voglio.
+                            //potrei far collassare le due cose.
+                            $headerNames = array_map(function ($index) use ($data) { return $data[$index]; } , $headersCsvIndexes);
                         }
+                    }else {
+                    
                     }
                     if($filters !== null){
                         foreach(array_keys((array) $filters) as $filter){
@@ -174,10 +188,9 @@ class FlyersController extends AppController
         $response = [
             "success" => true,
             "code" => 200,
-            "results" => [
-                $results
-            ]
+            "results" => $results
         ];
+        $response = mb_convert_encoding($response, 'UTF-8', 'UTF-8');
         return json_encode($response);
     } 
 

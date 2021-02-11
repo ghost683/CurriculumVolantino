@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Utils;
+namespace App\Core\Utils;
 
-class VolantiniUtils
+class FlyersUtils
 {
 
     public static function getVolantini(){
