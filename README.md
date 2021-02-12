@@ -28,3 +28,4 @@ http://volantini.lcl/flyers.json?page=1&filter[is_published]=0&filter[foo]=bar
 
 ## assumptions
 the flyer list is not necessarily sorted, to retrieve a flyer by given id loop the whole list.
+the csv file has the header in the first line.
