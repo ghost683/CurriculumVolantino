@@ -2,6 +2,7 @@
 
 namespace App\Core\Utils;
 
+
 /**
  * Flyers Utils class. used for manage flyers imports.
  *
@@ -21,7 +22,8 @@ class FlyersUtils
      * @param number $limit indicating resultset size limit
      * @return string[] Value extratted, or empty list.
      */
-    public static function getFlyers(array $filters = null, array $fields = null, $page = 1, $limit = 10) {
+    public static function getFlyers(array $filters = null, array $fields = null, $page = 1, $limit = 10)
+    {
 
         //TODO manage different source
         return self::readCsv($filters, $fields, $page, $limit);
@@ -44,55 +46,43 @@ class FlyersUtils
         $headerNames = self::getAvailableFields();
         //key id posizione param, valore valore richiesto
         $filtersMap = [];
-        $chunkStart = ( $page * $limit) - $limit + 1;
-      //  var_dump($chunkStart, $line);die;
+        $chunkStart = ($page * $limit) - $limit + 1;
+
+        $startDateIndex = array_search("start_date", $headerNames);
+        $endDateIndex = array_search("end_date", $headerNames);
+        $today = date("Y-m-d");
+
         if (($handle = fopen(getcwd() . "../../webroot/flyers_data.csv", "r")) !== FALSE) {
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE && $added <= $limit) {
                 // manage header line
                 if ($line == 1) {
                     if ($filters !== null) {
                         foreach (array_keys((array) $filters) as $filter) {
-                            //creo mappa di appoggio indexPosizione => valRichiesto
+                            //filter map helper.
                             $filtersMap[array_search($filter, $data)] = $filters[$filter];
                         }
                     }
                     $line++;
                     continue;
                 }
-               // echo "linea $line chunckStart $chunkStart <br>";
-               // escludo le linee non valorizzate
-                if(trim($data[0]) == '' || $line++ <= $chunkStart){
+
+                //manage pagination, excluding invalid row and invalid flyers
+                if (trim($data[0]) == ''            || 
+                    $data[$startDateIndex] > $today || 
+                    $data[$endDateIndex] < $today   ||
+                    $line++ <= $chunkStart) {
                     continue;
                 }
-                if($added >= $limit){
+                if ($added >= $limit) {
                     return $res;
                 }
+
                 //manage extraction
-                $row = [];
-                if (count($filtersMap) > 0) {
-                    foreach (array_keys($filtersMap) as $filterIndex) {
-                        //check requested filters value
-                        if ($data[$filterIndex] !== $filtersMap[$filterIndex]) {
-                            continue 2;
-                        }
-                    }
-                }
-                //exclude inactive flyers
-                //TODO controlla date.
-            
-
-                if ($fields !== null) {
-                    foreach($fields as $field){
-                        // get positional index of requested field
-                        $row []= $data[array_search($field, $headerNames)];
-                    }
-
+                $row = self::extractRow($data, $filtersMap, $fields, $today, $startDateIndex, $endDateIndex);
+                if ($row != null) {
                     $res[] = $row;
-                } else {
-                    $res[] = $data;
+                    $added++;
                 }
-                $added++;
-                
             }
             fclose($handle);
         }
@@ -117,12 +107,31 @@ class FlyersUtils
         return ["category" => 0, "is_published" => 0];
     }
 
-     /**
-     * @param string[] $row containig ordered row data
-     * 
-     * 
+    /**
+     * @param string[] $row ordered row data
+     * @return 
      */
-    private function extractRow(array $row){
+    private static function extractRow(array $data, $filtersMap, $fields)
+    {
+        $row = [];
+        if (count($filtersMap) > 0) {
+            foreach (array_keys($filtersMap) as $filterIndex) {
+                //check requested filters value based on filter map helper
+                if ($data[$filterIndex] !== $filtersMap[$filterIndex]) {
+                    return null;
+                }
+            }
+        }
 
+        if ($fields !== null) {
+            foreach ($fields as $field) {
+                // get positional index of requested field
+                $row[] = $data[array_search($field, self::getAvailableFields())];
+            }
+
+            return $row;
+        } else {
+            return  $data;
+        }
     }
 }
