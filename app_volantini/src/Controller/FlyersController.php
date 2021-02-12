@@ -55,8 +55,7 @@ class FlyersController extends AppController
             $response->responseSuccess($responseData);
 
         }catch( Exception $e) {
-
-            $response->responseError(404, $e->getMessage());
+            $response->responseError($e->getCode(), $e->getMessage());
         }
     }
 
@@ -79,9 +78,13 @@ class FlyersController extends AppController
             $response->responseError(400, "Bad Request", "Not allowed fields: {$invalidFields}");
         }
 
-        if(!$responseData = FlyersUtils::getFlyersById($id, $fields)){
-            $response->responseError(404, "Not found", "Resource $id not found");
+        try{
+            if(!$responseData = FlyersUtils::getFlyersById($id, $fields)){
+                $response->responseError(404, "Not found", "Resource $id not found");
+            }
+            $response->responseSuccess($responseData);
+        }catch( Exception $e){
+            $response->responseError($e->getCode(), $e->getMessage());
         }
-        $response->responseSuccess($responseData);
     }
 }

@@ -50,7 +50,7 @@ class FlyersUtils
     {
 
         if(!file_exists($filepath)){
-            throw new \Exception('Resource file not found.');
+            throw new \Exception('Resource file not found.', 404);
         }
 
         $line = 1;
