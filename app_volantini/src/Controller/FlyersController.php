@@ -2,10 +2,6 @@
 
 namespace App\Controller;
 
-
-
-use Cake\Core\Configure;
-
 use App\Core\Utils\FlyersUtils;
 use App\Core\Http\Response;
 
