@@ -12,8 +12,6 @@ namespace App\Core\Utils;
  */
 class FlyersUtils
 {
-
-
     /**
      * factory class for retrive flyers from different source
      * @param string[]|null $filters Variable to obtain
@@ -26,7 +24,12 @@ class FlyersUtils
     {
 
         //TODO manage different source
-        return self::readCsv($filters, $fields, $page, $limit);
+        return self::readCsv($fields, null, $filters, $page, $limit);
+    }
+
+    public static function getFlyersById($id, array $fields = null){
+
+        return self::readCsv($fields, $id);
     }
 
     /**
@@ -38,7 +41,7 @@ class FlyersUtils
      * @param number $limit indicating resultset size limit
      * @return string[] Value extratted, or empty list.
      */
-    private static function readCsv(array $filters = null, array $fields = null, $page = 1, $limit = 10): array
+    private static function readCsv(array $fields = null, $id = null, array $filters = null, $page = 1, $limit = 10): array
     {
         $line = 1;
         $added = 0;
@@ -65,6 +68,14 @@ class FlyersUtils
                     $line++;
                     continue;
                 }
+                //eluding controls for id search
+                //if recive id, i whant get the record always
+                if($id !== null){
+                    if($id == $data[array_search("id", $headerNames)]){
+                        return self::extractRow($data, $fields);
+                    }
+                    continue;
+                }
 
                 //manage pagination, excluding invalid row and invalid flyers
                 if (trim($data[0]) == ''            || 
@@ -73,13 +84,27 @@ class FlyersUtils
                     $line++ <= $chunkStart) {
                     continue;
                 }
+                //limit = null is not a problem.
                 if ($added >= $limit) {
                     return $res;
                 }
 
+                //check for valid filters value.
+                if (count($filtersMap) > 0) {
+                    foreach (array_keys($filtersMap) as $filterIndex) {
+                        //check requested filters value based on filter map helper
+                        if ($data[$filterIndex] !== $filtersMap[$filterIndex]) {
+                            continue 2;
+                        }
+                    }
+                }
+
                 //manage extraction
-                $row = self::extractRow($data, $filtersMap, $fields, $today, $startDateIndex, $endDateIndex);
+                $row = self::extractRow($data, $fields);
                 if ($row != null) {
+                    if($id !== null && $row[0] == $id){
+                        return $row;
+                    }
                     $res[] = $row;
                     $added++;
                 }
@@ -111,17 +136,9 @@ class FlyersUtils
      * @param string[] $row ordered row data
      * @return 
      */
-    private static function extractRow(array $data, $filtersMap, $fields)
+    private static function extractRow(array $data, $fields)
     {
         $row = [];
-        if (count($filtersMap) > 0) {
-            foreach (array_keys($filtersMap) as $filterIndex) {
-                //check requested filters value based on filter map helper
-                if ($data[$filterIndex] !== $filtersMap[$filterIndex]) {
-                    return null;
-                }
-            }
-        }
 
         if ($fields !== null) {
             foreach ($fields as $field) {

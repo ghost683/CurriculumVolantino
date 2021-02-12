@@ -39,7 +39,6 @@ class FlyersController extends AppController
             explode(",", $this->request->getQuery('fields'))    : 
             null;
 
-        
         // Check available fields list
         if($fields !== null && count($fields) > 0){
             $notExistingFieldsList = array_diff($fields, FlyersUtils::getAvailableFields());
@@ -71,8 +70,27 @@ class FlyersController extends AppController
 
     public function view($id)
     {
-        $recipe = $this->Volantini->get($id);
-        $this->set('recipe', $recipe);
-        $this->viewBuilder()->setOption('serialize', ['recipe']);
+        $response = new Response();
+        $fields = $this->request->getQuery('fields') !== null   ?
+            explode(",", $this->request->getQuery('fields'))    : 
+            null;
+
+        // Check available fields list
+        if($fields !== null && count($fields) > 0){
+            $notExistingFieldsList = array_diff($fields, FlyersUtils::getAvailableFields());
+            if(count($notExistingFieldsList) > 0){
+                $list = implode(",", $notExistingFieldsList);
+                //TO be fefactor
+                $response->responseError(400, "Bad Request", "Not allowed fields: {$list}");
+            }
+        }
+
+        $responseData = FlyersUtils::getFlyersById($id, $fields);
+
+        if(count($responseData) == 0){
+            $response->responseError(404, "Not found", "Not found");
+        }
+        $response->responseSuccess($responseData);
+
     }
 }
