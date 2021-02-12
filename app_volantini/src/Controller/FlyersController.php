@@ -10,18 +10,17 @@ use App\Core\Http\Response;
  */
 class FlyersController extends AppController
 {
-   
-    public function initialize(): void
-    {
-        parent::initialize();
-        $this->loadComponent('RequestHandler');
-    }
 
     /**
-     * Get all
-     * assunto: i filtri ed i field devono essere scritti nello stesso formato (case sensitive).
+     * retrive json response
+     *
+     * @param number|null $page recived in query string, indicate the pagination.
+     * @param number|null $limit recived in query string, indicate response chunk.
+     * @param string[]|null $filter recived in query string, indicate filters values.
+     * @param string|null $fields recived in query string, indicate requested fields list.
+     * @return App\Core\Http\Response
      */
-    public function index()
+    public function index(): Response
     {
         $response = new Response();
         $page = $this->request->getQuery('page');
@@ -44,31 +43,33 @@ class FlyersController extends AppController
             $notExistingFieldsList = array_diff($fields, FlyersUtils::getAvailableFields());
             if(count($notExistingFieldsList) > 0){
                 $list = implode(",", $notExistingFieldsList);
-                //TO be fefactor
                 $response->responseError(400, "Bad Request", "Not allowed fields: {$list}");
             }
         }
 
         //check available filters list
-        $notAllowedFiltersList = array_diff_key((array) $filters, FlyersUtils::getAvailableFilters());
+        $notAllowedFiltersList = array_diff_key((array) $filters, array_flip(FlyersUtils::getAvailableFilters()));
         if(count($notAllowedFiltersList) > 0 ){
             $list = implode(",", array_keys($notAllowedFiltersList));
-            //TO be refactor
             $response->responseError(400, "Bad Request", "Not allowed filters: {$list}");
         }        
        
         $responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit);
         if(count($responseData) == 0){
-            //To be reactor
             $response->responseError(404, "Not found", "Not found");
         }
-
-        //TO be refactor
         $response->responseSuccess($responseData);
     }
 
 
-    public function view($id)
+    /**
+     * retrive json response
+     *
+     * @param number|null $id, indicate flyers id.
+     * @param string|null $fields recived in query string, indicate requested fields list.
+     * @return App\Core\Http\Response
+     */
+    public function view($id): Response
     {
         $response = new Response();
         $fields = $this->request->getQuery('fields') !== null   ?
@@ -80,7 +81,6 @@ class FlyersController extends AppController
             $notExistingFieldsList = array_diff($fields, FlyersUtils::getAvailableFields());
             if(count($notExistingFieldsList) > 0){
                 $list = implode(",", $notExistingFieldsList);
-                //TO be fefactor
                 $response->responseError(400, "Bad Request", "Not allowed fields: {$list}");
             }
         }
@@ -91,6 +91,5 @@ class FlyersController extends AppController
             $response->responseError(404, "Not found", "Not found");
         }
         $response->responseSuccess($responseData);
-
     }
 }

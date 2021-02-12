@@ -22,13 +22,14 @@ class FlyersUtils
      */
     public static function getFlyers(array $filters = null, array $fields = null, $page = 1, $limit = 10)
     {
-
         //TODO manage different source
         return self::readCsv($fields, null, $filters, $page, $limit);
     }
 
-    public static function getFlyersById($id, array $fields = null){
+    public static function getFlyersById($id, array $fields = null)
+    {
 
+        //TODO manage different source
         return self::readCsv($fields, $id);
     }
 
@@ -69,22 +70,24 @@ class FlyersUtils
                     continue;
                 }
                 //eluding controls for id search
-                //if recive id, i whant get the record always
-                if($id !== null){
-                    if($id == $data[array_search("id", $headerNames)]){
+                //if recive id, i always want get the record 
+                if ($id !== null) {
+                    if ($id == $data[array_search("id", $headerNames)]) {
                         return self::extractRow($data, $fields);
                     }
                     continue;
                 }
 
                 //manage pagination, excluding invalid row and invalid flyers
-                if (trim($data[0]) == ''            || 
-                    $data[$startDateIndex] > $today || 
+                if (
+                    trim($data[0]) == ''            ||
+                    $data[$startDateIndex] > $today ||
                     $data[$endDateIndex] < $today   ||
-                    $line++ <= $chunkStart) {
+                    $line++ <= $chunkStart
+                ) {
                     continue;
                 }
-                //limit = null is not a problem.
+
                 if ($added >= $limit) {
                     return $res;
                 }
@@ -102,9 +105,6 @@ class FlyersUtils
                 //manage extraction
                 $row = self::extractRow($data, $fields);
                 if ($row != null) {
-                    if($id !== null && $row[0] == $id){
-                        return $row;
-                    }
                     $res[] = $row;
                     $added++;
                 }
@@ -129,7 +129,7 @@ class FlyersUtils
      */
     public static function getAvailableFilters(): array
     {
-        return ["category" => 0, "is_published" => 0];
+        return ["category", "is_published"];
     }
 
     /**
