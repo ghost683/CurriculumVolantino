@@ -20,15 +20,14 @@ class FlyersUtils
      * @param number $limit indicating resultset size limit
      * @return string[] Value extratted, or empty list.
      */
-    public static function getFlyers(array $filters = null, array $fields = null, $page = 1, $limit = 10)
+    public static function getFlyers(array $filters = null, array $fields = null, $page = 1, $limit = 10): array
     {
         //TODO manage different source
         return self::readCsv($fields, null, $filters, $page, $limit);
     }
 
-    public static function getFlyersById($id, array $fields = null)
+    public static function getFlyersById($id, array $fields = null): array
     {
-
         //TODO manage different source
         return self::readCsv($fields, $id);
     }
@@ -55,6 +54,7 @@ class FlyersUtils
         $filtersMap = [];
         $chunkStart = ($page * $limit) - $limit + 1;
 
+        // deprecable if known structure. maintained for example purpose only.
         $startDateIndex = array_search("start_date", $headerNames);
         $endDateIndex = array_search("end_date", $headerNames);
         $today = date("Y-m-d");
@@ -85,12 +85,13 @@ class FlyersUtils
                 }
 
                 //manage pagination, excluding invalid row and invalid flyers
-                if (
+                if (        
                     trim($data[0]) == ''            ||
                     $data[$startDateIndex] > $today ||
                     $data[$endDateIndex] < $today   ||
                     $line++ <= $chunkStart
                 ) {
+
                     continue;
                 }
 
@@ -98,7 +99,7 @@ class FlyersUtils
                     return $res;
                 }
 
-                //check for valid filters value.
+                //check filters value.
                 if (count($filtersMap) > 0) {
                     foreach (array_keys($filtersMap) as $filterIndex) {
                         //check requested filters value based on filter map helper
@@ -121,8 +122,38 @@ class FlyersUtils
     }
 
     /**
+     * @param string[] @fields list of requested fields
+     * @return string|null
+     */
+    public static function checkValidFields(array $fields): ?string 
+    {
+        $notExistingFieldsList = array_diff($fields, self::getAvailableFields());
+        if(count($notExistingFieldsList) > 0){
+            $list = implode(",", $notExistingFieldsList);
+            return $list;
+        }else {
+            return null;
+        }
+    }
+
+    /**
+     * @param string[] @filters list of requested filter in format key => val
+     * @return string|null 
+     */
+    public static function checkValidFilters(array $filters): ?string
+    {
+        $invalidFilters = array_diff_key((array) $filters, array_flip(self::getAvailableFilters()));
+        if(count($invalidFilters) > 0 ){
+            $list = implode(",", array_keys($invalidFilters));
+            return $list;
+        }else {
+            return null;
+        }     
+    }
+
+    /**
      * Scaffolding function
-     * return ordered header fields list
+     * @return string[] ordered header fields list
      */
     public static function getAvailableFields(): array
     {
@@ -131,7 +162,7 @@ class FlyersUtils
 
     /**
      * Scaffolding function
-     * return available filters list
+     * @return string[] available filters list
      */
     public static function getAvailableFilters(): array
     {
@@ -140,9 +171,9 @@ class FlyersUtils
 
     /**
      * @param string[] $row ordered row data
-     * @return 
+     * @return string[] map of recovered key => value
      */
-    private static function extractRow(array $data, $fields)
+    private static function extractRow(array $data, $fields): array
     {
         $row = [];
 
@@ -151,7 +182,6 @@ class FlyersUtils
                 // retrive data by positional index of requested field
                 $row[] = $data[array_search($field, self::getAvailableFields())];
             }
-
             return array_combine($fields, $row);
         } else {
             return  array_combine(self::getAvailableFields(), $data);

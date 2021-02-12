@@ -10,7 +10,6 @@ use App\Core\Http\Response;
  */
 class FlyersController extends AppController
 {
-
     /**
      * retrive json response
      *
@@ -39,33 +38,25 @@ class FlyersController extends AppController
             null;
 
         // Check available fields list
-        if($fields !== null && count($fields) > 0){
-            $notExistingFieldsList = array_diff($fields, FlyersUtils::getAvailableFields());
-            if(count($notExistingFieldsList) > 0){
-                $list = implode(",", $notExistingFieldsList);
-                $response->responseError(400, "Bad Request", "Not allowed fields: {$list}");
-            }
+        if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
+            $response->responseError(400, "Bad Request", "Not allowed fields: {$invalidFields}");
         }
 
         //check available filters list
-        $notAllowedFiltersList = array_diff_key((array) $filters, array_flip(FlyersUtils::getAvailableFilters()));
-        if(count($notAllowedFiltersList) > 0 ){
-            $list = implode(",", array_keys($notAllowedFiltersList));
-            $response->responseError(400, "Bad Request", "Not allowed filters: {$list}");
-        }        
+        if($filters !== null && $invalidFilters = FlyersUtils::checkValidFilters($filters)){
+            $response->responseError(400, "Bad Request", "Not allowed filters: {$invalidFilters}");
+        }   
        
-        $responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit);
-        if(count($responseData) == 0){
+        if(!$responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit)){
             $response->responseError(404, "Not found", "Not found");
         }
         $response->responseSuccess($responseData);
     }
 
-
     /**
-     * retrive json response
+     * retrive json response for requested flyer
      *
-     * @param number|null $id, indicate flyers id.
+     * @param number|null $id, indicate flyer id.
      * @param string|null $fields recived in query string, indicate requested fields list.
      * @return App\Core\Http\Response
      */
@@ -77,18 +68,12 @@ class FlyersController extends AppController
             null;
 
         // Check available fields list
-        if($fields !== null && count($fields) > 0){
-            $notExistingFieldsList = array_diff($fields, FlyersUtils::getAvailableFields());
-            if(count($notExistingFieldsList) > 0){
-                $list = implode(",", $notExistingFieldsList);
-                $response->responseError(400, "Bad Request", "Not allowed fields: {$list}");
-            }
+        if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
+            $response->responseError(400, "Bad Request", "Not allowed fields: {$invalidFields}");
         }
 
-        $responseData = FlyersUtils::getFlyersById($id, $fields);
-
-        if(count($responseData) == 0){
-            $response->responseError(404, "Not found", "Not found");
+        if(!$responseData = FlyersUtils::getFlyersById($id, $fields)){
+            $response->responseError(404, "Not found", "Resource $id not found");
         }
         $response->responseSuccess($responseData);
     }
