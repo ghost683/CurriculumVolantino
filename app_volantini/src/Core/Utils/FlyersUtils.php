@@ -2,6 +2,9 @@
 
 namespace App\Core\Utils;
 
+define("FLYERS_RESOURCES_PATH",  getcwd() . "../../webroot/flyers_resources/");
+define("DEFAULT_CSV", "flyers_data.csv");
+
 
 /**
  * Flyers Utils class. used for manage flyers imports.
@@ -12,6 +15,7 @@ namespace App\Core\Utils;
  */
 class FlyersUtils
 {
+
     /**
      * factory class for retrive flyers from different source
      * @param string[]|null $filters Variable to obtain
@@ -23,13 +27,13 @@ class FlyersUtils
     public static function getFlyers(array $filters = null, array $fields = null, $page = 1, $limit = 10): array
     {
         //TODO manage different source
-        return self::readCsv($fields, null, $filters, $page, $limit);
+        return self::readCsv(FLYERS_RESOURCES_PATH . DEFAULT_CSV, $fields, null, $filters, $page, $limit);
     }
 
     public static function getFlyersById($id, array $fields = null): array
     {
         //TODO manage different source
-        return self::readCsv($fields, $id);
+        return self::readCsv(FLYERS_RESOURCES_PATH . DEFAULT_CSV, $fields, $id);
     }
 
     /**
@@ -42,8 +46,13 @@ class FlyersUtils
      * @param number|100 $limit indicating resultset size limit
      * @return string[] Value extratted, or empty list.
      */
-    private static function readCsv(array $fields = null, $id = null, array $filters = null, $page = 1, $limit = 100): array
+    private static function readCsv(string $filepath, array $fields = null, $id = null, array $filters = null, $page = 1, $limit = 100): array
     {
+
+        if(!file_exists($filepath)){
+            throw new \Exception('Resource file not found.');
+        }
+
         $line = 1;
         $added = 0;
         $res = [];
@@ -59,7 +68,8 @@ class FlyersUtils
         $endDateIndex = array_search("end_date", $headerNames);
         $today = date("Y-m-d");
 
-        if (($handle = fopen(getcwd() . "../../webroot/flyers_data.csv", "r")) !== FALSE) {
+
+        if (($handle = fopen($filepath, "r")) !== FALSE) {
             while (($data = fgetcsv($handle, 1000, ",")) !== FALSE && $added <= $limit) {
                 // manage header line
                 if ($line == 1) {

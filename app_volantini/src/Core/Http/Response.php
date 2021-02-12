@@ -4,7 +4,7 @@ namespace App\Core\Http;
 
 class Response {
 
-    public function responseError($errorCode, $message, $debug) {
+    public function responseError($errorCode, $message, $debug = "") {
 
         $error = [
             "success" => false,

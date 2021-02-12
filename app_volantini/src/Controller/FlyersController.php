@@ -3,6 +3,7 @@
 namespace App\Controller;
 use App\Core\Utils\FlyersUtils;
 use App\Core\Http\Response;
+use Exception;
 
 /**
  * This controller will return Flyers in json format
@@ -47,10 +48,16 @@ class FlyersController extends AppController
             $response->responseError(400, "Bad Request", "Not allowed filters: {$invalidFilters}");
         }   
        
-        if(!$responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit)){
-            $response->responseError(404, "Not found", "Not found");
+        try{
+            if(!$responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit)){
+                $response->responseError(404, "Not found", "Not found");
+            }
+            $response->responseSuccess($responseData);
+
+        }catch( Exception $e) {
+
+            $response->responseError(404, $e->getMessage());
         }
-        $response->responseSuccess($responseData);
     }
 
     /**
