@@ -36,19 +36,22 @@ class FlyersUtils
     /**
      * Used to read csv file by pagination
      * 
-     * @param string[]|null $filters Variable to obtain
      * @param string[]|null $filds  list indicating requested fields
-     * @param number $page indicating pagination
-     * @param number $limit indicating resultset size limit
+     * @param number|null $id flyer id for specific search.
+     * @param string[]|null $filters Variable to obtain
+     * @param number|1 $page indicating pagination
+     * @param number|100 $limit indicating resultset size limit
      * @return string[] Value extratted, or empty list.
      */
-    private static function readCsv(array $fields = null, $id = null, array $filters = null, $page = 1, $limit = 10): array
+    private static function readCsv(array $fields = null, $id = null, array $filters = null, $page = 1, $limit = 100): array
     {
         $line = 1;
         $added = 0;
         $res = [];
+
+        //for example purpose only.
         $headerNames = self::getAvailableFields();
-        //key id posizione param, valore valore richiesto
+
         $filtersMap = [];
         $chunkStart = ($page * $limit) - $limit + 1;
 
@@ -66,6 +69,9 @@ class FlyersUtils
                             $filtersMap[array_search($filter, $data)] = $filters[$filter];
                         }
                     }
+
+                    //possible header recovery. not done for example purpose only
+
                     $line++;
                     continue;
                 }
@@ -116,7 +122,7 @@ class FlyersUtils
 
     /**
      * Scaffolding function
-     * return ordered array off header
+     * return ordered header fields list
      */
     public static function getAvailableFields(): array
     {
@@ -124,8 +130,8 @@ class FlyersUtils
     }
 
     /**
-     * TODO trova soluzione per togliere valori
-     * quindi rimandare il compito all'utilizzatore.
+     * Scaffolding function
+     * return available filters list
      */
     public static function getAvailableFilters(): array
     {
@@ -142,13 +148,13 @@ class FlyersUtils
 
         if ($fields !== null) {
             foreach ($fields as $field) {
-                // get positional index of requested field
+                // retrive data by positional index of requested field
                 $row[] = $data[array_search($field, self::getAvailableFields())];
             }
 
-            return $row;
+            return array_combine($fields, $row);
         } else {
-            return  $data;
+            return  array_combine(self::getAvailableFields(), $data);
         }
     }
 }
