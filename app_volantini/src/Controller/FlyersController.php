@@ -1,7 +1,6 @@
 <?php 
 
 namespace App\Controller;
-
 use App\Core\Utils\FlyersUtils;
 use App\Core\Http\Response;
 
@@ -59,7 +58,7 @@ class FlyersController extends AppController
             $response->responseError(400, "Bad Request", "Not allowed filters: {$list}");
         }        
        
-        $responseData = FlyersUtils::readCsv((array) $filters, $fields, $page, $limit);
+        $responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit);
         if(count($responseData) == 0){
             //To be reactor
             $response->responseError(404, "Not found", "Not found");
