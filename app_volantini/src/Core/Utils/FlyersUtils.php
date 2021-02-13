@@ -2,7 +2,7 @@
 
 namespace App\Core\Utils;
 
-define("FLYERS_RESOURCES_PATH",  getcwd() . "../../webroot/flyers_resources/");
+define("FLYERS_RESOURCES_PATH", __DIR__ . '/../../../webroot/flyers_resources/');
 define("DEFAULT_CSV", "flyers_data.csv");
 
 use App\Core\Utils\Importer\CsvImporter;
@@ -28,6 +28,9 @@ class FlyersUtils
      */
     public static function getFlyers(array $filters = null, array $fields = null, $page = 1, $limit = 10): array
     {
+        /**
+         * here can be implemented logic for source file choosen.
+         */
         $filePath = FLYERS_RESOURCES_PATH . DEFAULT_CSV;
         return self::getImporter(DEFAULT_CSV)->importSource($filePath, $fields, null, $filters, $page, $limit);
     }
@@ -39,6 +42,9 @@ class FlyersUtils
      */
     public static function getFlyer(int $id, array $fields = null): array
     {
+        /**
+         * here can be implemented logic for source file choosen.
+         */
         $filePath = FLYERS_RESOURCES_PATH . DEFAULT_CSV;
         return self::getImporter(DEFAULT_CSV)->importSource($filePath, $fields, $id);
     }

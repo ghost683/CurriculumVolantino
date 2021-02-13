@@ -69,6 +69,10 @@ the following list indicates the appropriate assumptions considered during devel
  - the flyer list is not necessarily sorted, to retrieve a flyer by given id loop the whole list.
  - the csv file has the header in the first line and is valid.
  - the recordset given to me was in .number format, for work in windows system i used an online converter. the resulted csv file was link above. the file presents a lot a invalid line, i considered they where correct but to be omitted.
+ - fields name and filters name was compared in case sensitive way.
+ - Unexpected or malformed parameters are not considered and not was considered errores.
+ - the source file was stored in webroot/flyers_resources. the path is used as constant in FlyersUtils for example purpose only.
+
 
 
 
