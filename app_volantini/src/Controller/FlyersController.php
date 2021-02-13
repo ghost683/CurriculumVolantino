@@ -103,7 +103,7 @@ class FlyersController extends AppController
                 ]
             ]);
         
-        $this->response = $this->response->withStatus($response['code']);
+        $this->response = $this->response->withStatus($code);
         $this->viewBuilder()
             ->setOption('serialize', ['success','code','error']);
     }
