@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 use App\Core\Utils\FlyersUtils;
-use App\Core\Utils\ResponseUtils;
 use Exception;
 
 /**
@@ -46,18 +45,18 @@ class FlyersController extends AppController
         try {
             // Check available fields list
             if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
-                $this->responseError(ResponseUtils::formatResponseError(400, "Bad Request", "Not allowed fields: {$invalidFields}"));
+                $this->responseError(400, "Bad Request", "Not allowed fields: {$invalidFields}");
             }else if($filters !== null && $invalidFilters = FlyersUtils::checkValidFilters($filters)){
                 //check available filters list
-                $this->responseError(ResponseUtils::formatResponseError(400, "Bad Request", "Not allowed filters: {$invalidFilters}"));
+                $this->responseError(400, "Bad Request", "Not allowed filters: {$invalidFilters}");
             }else if(!$responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit)){
-                $this->responseError(ResponseUtils::formatResponseError(404, "Not found", "Not found"));
+                $this->responseError(404, "Not found", "Not found");
             }else {
-                $this->responseSuccess(ResponseUtils::formatResponseSuccess($responseData));
+                $this->responseSuccess($responseData);
             }
 
         } catch(Exception $e){
-            $this->responseError(ResponseUtils::formatResponseError($e->getCode(), $e->getMessage()));
+            $this->responseError($e->getCode(), $e->getMessage());
         }
     }
 
@@ -77,14 +76,14 @@ class FlyersController extends AppController
         try{
             // Check available fields list
             if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
-                $this->responseError(ResponseUtils::formatResponseError(400, "Bad Request", "Not allowed fields: {$invalidFields}"));
+                $this->responseError(400, "Bad Request", "Not allowed fields: {$invalidFields}");
             }else if(!$responseData = FlyersUtils::getFlyer($id, $fields)){
-                $this->responseError(ResponseUtils::formatResponseError(404, "Not found", "Resource $id not found"));
+                $this->responseError(404, "Not found", "Resource $id not found");
             }else {
-                $this->responseSuccess(ResponseUtils::formatResponseSuccess($responseData));
+                $this->responseSuccess($responseData);
             }
         }catch (Exception $e){
-            $this->responseError(ResponseUtils::formatResponseError($e->getCode(), $e->getMessage()));
+            $this->responseError($e->getCode(), $e->getMessage());
         }
     }
 
@@ -93,12 +92,15 @@ class FlyersController extends AppController
      * TO be refactor somewhere
      * @param array @response the response array 
      */
-    private function responseError($response) {
+    private function responseError($code, $message, $debug = '') {
         $this->set(
             [   
-                'success' => $response['success'],
-                'code' => $response['code'],
-                'error' => $response['error']
+                'success' => 'false',
+                'code' => $code,
+                'error' => [
+                    'message' => $message,
+                    'debug' => $debug
+                ]
             ]);
         
         $this->response = $this->response->withStatus($response['code']);
@@ -111,12 +113,12 @@ class FlyersController extends AppController
      * TO be refactor somewhere
      * @param array @response the response array 
      */
-    private function responseSuccess($response){
+    private function responseSuccess($result){
         $this->set(
             [   
-                'success' => $response['success'],
-                'code' => $response['code'],
-                'results' => $response['results']
+                'success' => 'true',
+                'code' => 200,
+                'results' => $result
             ]);
         $this->viewBuilder()
             ->setOption('serialize', ['success','code', 'results']);
