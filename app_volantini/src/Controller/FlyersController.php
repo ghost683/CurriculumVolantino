@@ -79,7 +79,7 @@ class FlyersController extends AppController
         }
 
         try{
-            if(!$responseData = FlyersUtils::getFlyersById($id, $fields)){
+            if(!$responseData = FlyersUtils::getFlyer($id, $fields)){
                 $response->responseError(404, "Not found", "Resource $id not found");
             }
             $response->responseSuccess($responseData);
