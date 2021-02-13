@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 use App\Core\Utils\FlyersUtils;
-use App\Core\Http\Response;
+use App\Core\Utils\ResponseUtils;
 use Exception;
 
 /**
@@ -11,18 +11,23 @@ use Exception;
  */
 class FlyersController extends AppController
 {
+
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->loadComponent('RequestHandler');
+    }
+
     /**
      * retrive json response
-     *
      * @param number|null $page recived in query string, indicate the pagination.
      * @param number|null $limit recived in query string, indicate response chunk.
      * @param string[]|null $filter recived in query string, indicate filters values.
      * @param string|null $fields recived in query string, indicate requested fields list.
      * @return App\Core\Http\Response
      */
-    public function index(): Response
+    public function index()
     {
-        $response = new Response();
         $page = $this->request->getQuery('page');
         if($page == null || intval($page) < 1){
             $page = 1;
@@ -37,25 +42,22 @@ class FlyersController extends AppController
         $fields = $this->request->getQuery('fields') !== null   ?
             explode(",", $this->request->getQuery('fields'))    : 
             null;
-
-        // Check available fields list
-        if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
-            $response->responseError(400, "Bad Request", "Not allowed fields: {$invalidFields}");
-        }
-
-        //check available filters list
-        if($filters !== null && $invalidFilters = FlyersUtils::checkValidFilters($filters)){
-            $response->responseError(400, "Bad Request", "Not allowed filters: {$invalidFilters}");
-        }   
-       
-        try{
-            if(!$responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit)){
-                $response->responseError(404, "Not found", "Not found");
+        
+        try {
+            // Check available fields list
+            if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
+                $this->responseError(ResponseUtils::formatResponseError(400, "Bad Request", "Not allowed fields: {$invalidFields}"));
+            }else if($filters !== null && $invalidFilters = FlyersUtils::checkValidFilters($filters)){
+                //check available filters list
+                $this->responseError(ResponseUtils::formatResponseError(400, "Bad Request", "Not allowed filters: {$invalidFilters}"));
+            }else if(!$responseData = FlyersUtils::getFlyers((array) $filters, $fields, $page, $limit)){
+                $this->responseError(ResponseUtils::formatResponseError(404, "Not found", "Not found"));
+            }else {
+                $this->responseSuccess(ResponseUtils::formatResponseSuccess($responseData));
             }
-            $response->responseSuccess($responseData);
 
-        }catch( Exception $e) {
-            $response->responseError($e->getCode(), $e->getMessage());
+        } catch(Exception $e){
+            $this->responseError(ResponseUtils::formatResponseError($e->getCode(), $e->getMessage()));
         }
     }
 
@@ -66,25 +68,45 @@ class FlyersController extends AppController
      * @param string|null $fields recived in query string, indicate requested fields list.
      * @return App\Core\Http\Response
      */
-    public function view($id): Response
+    public function view($id)
     {
-        $response = new Response();
         $fields = $this->request->getQuery('fields') !== null   ?
             explode(",", $this->request->getQuery('fields'))    : 
             null;
-
-        // Check available fields list
-        if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
-            $response->responseError(400, "Bad Request", "Not allowed fields: {$invalidFields}");
-        }
-
         try{
-            if(!$responseData = FlyersUtils::getFlyer($id, $fields)){
-                $response->responseError(404, "Not found", "Resource $id not found");
+            // Check available fields list
+            if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
+                $this->responseError(ResponseUtils::formatResponseError(400, "Bad Request", "Not allowed fields: {$invalidFields}"));
+            }else if(!$responseData = FlyersUtils::getFlyer($id, $fields)){
+                $this->responseError(ResponseUtils::formatResponseError(404, "Not found", "Resource $id not found"));
+            }else {
+                $this->responseSuccess(ResponseUtils::formatResponseSuccess($responseData));
             }
-            $response->responseSuccess($responseData);
-        }catch( Exception $e){
-            $response->responseError($e->getCode(), $e->getMessage());
+        }catch (Exception $e){
+            $this->responseError(ResponseUtils::formatResponseError($e->getCode(), $e->getMessage()));
         }
+    }
+
+    private function responseError($response) {
+        $this->set(
+            [   
+                'success' => $response['success'],
+                'code' => $response['code'],
+                'error' => $response['error']
+            ]);
+        $this->viewBuilder()
+            ->setOption('serialize', ['success','code', 'error'])
+            ->setOption('Status', 400);
+    }
+
+    private function responseSuccess($response){
+        $this->set(
+            [   
+                'success' => $response['success'],
+                'code' => $response['code'],
+                'results' => $response['results']
+            ]);
+        $this->viewBuilder()
+            ->setOption('serialize', ['success','code', 'results']);
     }
 }

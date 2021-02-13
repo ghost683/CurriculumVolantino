@@ -24,7 +24,7 @@ abstract class SourceImporter
      * Scaffolding function
      * @return string[] ordered header fields list
      */
-    protected static function getAvailableFields(): array
+    public static function getAvailableFields(): array
     {
         return ["id", "title", "start_date", "end_date", "is_published", "retailer", "category"];
     }
@@ -33,7 +33,7 @@ abstract class SourceImporter
      * Scaffolding function
      * @return string[] available filters list
      */
-    protected static function getAvailableFilters(): array
+    public static function getAvailableFilters(): array
     {
         return ["category", "is_published"];
     }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Core\Http;
+namespace App\Core\Utils;
 
-class Response {
+class ResponseUtils {
 
-    public function responseError($errorCode, $message, $debug = "") {
+    public static function formatResponseError($errorCode, $message, $debug = "") {
 
         $error = [
             "success" => false,
@@ -14,18 +14,15 @@ class Response {
                 "debug" => $debug
             ]
         ];
-        echo json_encode($error);
-        exit;
+        return $error;
     }
 
-    public function responseSuccess($results){
+    public static function formatResponseSuccess($results){
         $response = [
             "success" => true,
             "code" => 200,
             "results" => $results
         ];
-        $response = mb_convert_encoding($response, 'UTF-8', 'UTF-8');
-        echo json_encode($response);
-        exit;
+        return $response;
     } 
 }
