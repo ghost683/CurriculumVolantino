@@ -73,6 +73,7 @@ class FlyersController extends AppController
         $fields = $this->request->getQuery('fields') !== null   ?
             explode(",", $this->request->getQuery('fields'))    : 
             null;
+
         try{
             // Check available fields list
             if($fields !== null && count($fields) > 0 && $invalidFields = FlyersUtils::checkValidFields($fields)){
@@ -94,9 +95,10 @@ class FlyersController extends AppController
                 'code' => $response['code'],
                 'error' => $response['error']
             ]);
+        
+        $this->response = $this->response->withStatus($response['code']);
         $this->viewBuilder()
-            ->setOption('serialize', ['success','code', 'error'])
-            ->setOption('Status', 400);
+            ->setOption('serialize', ['success','code','error']);
     }
 
     private function responseSuccess($response){
