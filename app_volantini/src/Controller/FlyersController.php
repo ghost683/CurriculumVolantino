@@ -88,6 +88,11 @@ class FlyersController extends AppController
         }
     }
 
+    /**
+     * helper function that format and send error response
+     * TO be refactor somewhere
+     * @param array @response the response array 
+     */
     private function responseError($response) {
         $this->set(
             [   
@@ -101,6 +106,11 @@ class FlyersController extends AppController
             ->setOption('serialize', ['success','code','error']);
     }
 
+     /**
+     * helper function that format and send success response
+     * TO be refactor somewhere
+     * @param array @response the response array 
+     */
     private function responseSuccess($response){
         $this->set(
             [   
