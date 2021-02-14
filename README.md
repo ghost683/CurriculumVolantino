@@ -1,11 +1,8 @@
 # Skills showcase Stefano Grado
 
 The purpose of this repository is to offer an overview of my skills.
-
 The project involves the creation of a simple REST call for the management of leaflets.
-
 For the realization the indications given by the analysis reported below were followed.
-
 It is to be considered my first approach with Framework cackePHP.
 
 ## Docs
@@ -15,8 +12,6 @@ It is to be considered my first approach with Framework cackePHP.
 
 ## Stack
 
-  
-
 - Php 7
 
 - Framework cackePHP 4
@@ -25,13 +20,11 @@ It is to be considered my first approach with Framework cackePHP.
 
 - Docker
 
-  
-
 ## Usage
 
 ### Apache context:
 
- - download the zip from latest relases list and unzip.
+ - download the zip from latest relases and unzip.
  - run composer install
  - configure apache virtualhost  to point to the folder app_volantini.
  - eventualy configure gzip compression for improve speed always in virtualhost config.
@@ -40,6 +33,7 @@ It is to be considered my first approach with Framework cackePHP.
 
 ### Docker context:
 
+ - download the zip from latest release and unzip
  - Run docker-compose build
  - Run docker-compose run
  - EP will listen on localhost:4000 
@@ -65,7 +59,7 @@ It is to be considered my first approach with Framework cackePHP.
 - invalid requested id, exided max id in recordset
 /flyers/128.json
 
-  
+
 
 ## assumptions
 the following list indicates the appropriate assumptions considered during development
@@ -82,3 +76,27 @@ the following list indicates the appropriate assumptions considered during devel
  - for enable access to a local simple frontend, i enable CORS origin from every domain (*).
 
 
+## Extra
+
+### Testing
+test case are stored in app_volantini/tests/TestCase
+to run test, run vendor\bin\phpunit from cli.
+
+### Simple frontend
+
+for showcase only purpose i'm writing a very basic front end that consume REST api EP rendering a very basic bootstrap cards. it is not to be considered a REAL front end, it is not to be considered as the choice I would have made in a real context. the front end makes ajax calls to show results with simple bootstrap cards. for the purpose I have enabled the CORS in the backend without adding any type of control. everything is for demonstration purposes only. the front end expects the backend to listen on localhost:4000, so it works with the docker version presented.
+
+#### Stack
+ - Html
+ - Css
+ - Vanilla js
+ - Bootstrap 4
+
+#### Features
+ - look for a flyer given its id
+ - manage pagination results
+ - NOT manage filtering
+
+#### Usage
+just open html file and test it. the backend must be listening on localhost: 4000.
+searching for a id flyer will reset pagination to page 1.

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Simple framework</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="simple_frontend.css"></link>
+</head>
+
+<body>
+    <div class="header row bg-primary text-white">
+        <div class="col-lg-8 col-md-7 col-sm-12">
+            <h2 class="pl-2">Simple Frontend </h2>
+        </div>
+        <div class="col-lg-4 col-md-5 col-sm-12 mt-1">
+            <div class="col-12 d-flex">
+                <input id="searchbox" class="form-control"  type="number" min="1" placeholder="Search id" aria-label="Search">
+                <button class="btn btn-outline-success bg-light" onclick="getFlyer()">Search</button>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4 mx-auto  w-50">
+
+        <div id="cardContainer" class="row justify-content-center pt-3 w-100">
+           
+        </div>
+        <div class="col-12 justify-content-center">
+            <nav class="d-flex mt-2" aria-label=" Page navigation example">
+                <ul class="pagination d-flex m-0 align-items-end"">
+                    <li class=" page-item"><button id="previousPage" class="page-link" onclick="getFlyers(--page)">Previous</button></li>
+                    <li class=" page-item"><button class="page-link" onclick="getFlyers(++page)">Next</button></li>
+                </ul>
+            </nav>
+            
+        </div>
+    </div>
+
+    <div id="cardTemplate" class="card d-none col-lg-5 col-md-7 m-1">
+        <div class="card-body pl-1">
+            <div class="card-header"> <h5 class="cardTitle">Title</h5></div>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+                content.</p>
+            <footer class="blockquote-footer"></footer>
+        </div>
+    </div>
+
+    <script src="simple_frontend.js"></script>
+</body>
+
+</html>
