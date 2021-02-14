@@ -1,0 +1,181 @@
+openapi: 3.0.0
+info:
+  title: App_Volantini API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com/
+    description: sample server host
+paths:
+  /flyers.json:
+    get:
+      summary: Returns a list of flyers.
+      tag:
+        - flyers
+        - error
+      parameters:
+        - name: page
+          in: query
+          description: pagination index
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          description: size of resultset pagination
+          required: false
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+        - name: fields
+          in: query
+          description: comma separated list of required fields
+          required: false
+          schema:
+            type: string
+        - name: filters
+          in: query
+          description: map of filters key value.
+          required: false
+          schema:
+            type: deepObject
+      responses:
+        '200':
+          description: A JSON array of flyers object
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  code:
+                    type: int
+                    format: int64
+                    enum: [200]
+                  results:
+                    type: object
+                    schema:
+                      $ref: "#/components/schemas/Flyer"
+        '400':
+          description: A error message indicating the error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        '404':
+          description: Not found error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '5XX':
+          description: Unexpected server error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /flyers/{flyerId}.json:
+    get:
+      summary: Return a flyer rappresented by id.
+      tags:
+        - flyer
+        - error
+      parameters:
+        - name: fields
+          in: query
+          description: comma separated list of required fields
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: expected success response with valid flyer object.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum: [true]
+                  code:
+                    type: int
+                    format: int64
+                    enum: [200]
+                  results:
+                    type: object
+                    schema:
+                      $ref: "#/components/schemas/Flyer"            
+        '400':
+          description: invalid field list required.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: A flyer with the specified ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '5XX':
+        description: Unexpected server error.
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Flyer:
+      type: object
+      required:
+        - id
+      id:
+        type: int
+        example: 95
+      title:
+        type: string
+        example: flyer title.
+      start_date:
+        type: string
+        format: date
+        example: 2021-04-26
+      end_date:
+        type: string 
+        format: date
+        example: 2021-03-19
+      is_published:
+        type: int
+        minimum: 0
+        maximum: 1
+        example: 1
+      retailer:
+        type: string
+        example: Conad
+    Flyers:
+      type: array
+      items:
+        $ref: "#/components/schemas/Flyer"
+    Error:
+      type: object
+      properties:
+        status:
+          type: boolean
+          enum: [false]
+        code:
+          type: integer
+          format: int32
+          minimum: 400
+          maximum: 599
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+            debug:
+              type: string
