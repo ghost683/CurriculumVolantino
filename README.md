@@ -32,6 +32,7 @@ It is to be considered my first approach with Framework cackePHP.
 ### Apache context:
 
  - download the zip from latest relases list and unzip.
+ - run composer install
  - configure apache virtualhost  to point to the folder app_volantini.
  - eventualy configure gzip compression for improve speed always in virtualhost config.
  - reload Apache.
@@ -39,12 +40,15 @@ It is to be considered my first approach with Framework cackePHP.
 
 ### Docker context:
 
-TODO
+ - Run docker-compose build
+ - Run docker-compose run
+ - EP will listen on localhost:4000 
 
   
 
 ### EndPoints valid links examples
 
+ - / will redirect to /flyers.json
  - /flyers.json?page=1&filter[is_published]=0
  - /flyers.json?page=2&limit=113 
  - /flyers.jsonpage=2&limit=50&fields=title,category&filter[category]=Discount&filter[is_published]=1
@@ -73,6 +77,8 @@ the following list indicates the appropriate assumptions considered during devel
  - Unexpected or malformed parameters are not considered and not was considered errores.
  - the source file was stored in webroot/flyers_resources. the path is used as constant in FlyersUtils for example purpose only.
 
-
+## Security consideration
+ - for example purpose only, i diabled all kind off security token like csrf.
+ - for enable access to a local simple frontend, i enable CORS origin from every domain (*).
 
 

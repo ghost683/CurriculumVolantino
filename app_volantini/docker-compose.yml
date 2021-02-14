@@ -1,0 +1,6 @@
+version: '2'
+services:
+  cakephp:
+    build: .
+    ports:
+      - "4000:80"
