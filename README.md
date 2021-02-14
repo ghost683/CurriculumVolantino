@@ -6,8 +6,8 @@ For the realization the indications given by the analysis reported below were fo
 It is to be considered my first approach with Framework cackePHP.
 
 ## Docs
-...
 
+the doc, .number file and converted csv file are stored in repository root in folder Docs_and_source/
   
 
 ## Stack
@@ -81,6 +81,9 @@ the following list indicates the appropriate assumptions considered during devel
 ### Testing
 test case are stored in app_volantini/tests/TestCase
 to run test, run vendor\bin\phpunit from cli.
+
+### swagger.yaml
+fisrt version of swagger.yaml was upload in repository root. it's not a valid swagger file, i'm learning on.
 
 ### Simple frontend
 
