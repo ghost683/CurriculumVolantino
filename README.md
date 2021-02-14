@@ -34,9 +34,10 @@ the doc, .number file and converted csv file are stored in repository root in fo
 ### Docker context:
 
  - download the zip from latest release and unzip
+ - go to the folder app_volantini
  - Run docker-compose build
  - Run docker-compose run
- - EP will listen on localhost:4000 
+ - Service will listen on localhost:4000 
 
   
 
