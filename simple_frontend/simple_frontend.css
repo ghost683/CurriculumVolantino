@@ -10,6 +10,10 @@
     max-width: 280px;
 }
 
+.card {
+    height: 170px;
+}
+
 .card-header {
     min-height: 57px;
 }
