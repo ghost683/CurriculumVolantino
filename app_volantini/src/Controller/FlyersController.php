@@ -97,7 +97,7 @@ class FlyersController extends AppController
     private function responseError($code, $message, $debug = '') {
         $this->set(
             [   
-                'success' => 'false',
+                'success' => false,
                 'code' => $code,
                 'error' => [
                     'message' => $message,
@@ -119,7 +119,7 @@ class FlyersController extends AppController
     private function responseSuccess($result){
         $this->set(
             [   
-                'success' => 'true',
+                'success' => true,
                 'code' => 200,
                 'results' => $result
             ]);

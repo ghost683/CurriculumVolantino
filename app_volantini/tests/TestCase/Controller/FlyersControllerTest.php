@@ -68,4 +68,46 @@ class FlyersControllerTest extends TestCase
         $this->assertResponseError();
     }
 
+    /**
+     * test correct id recovery and fields list.
+     */
+    public function testIdResult(){
+        $this->configRequest([
+            'headers' => ['Accept' => 'application/json']
+        ]);
+        $this->get('/flyers/1.json?fields=id,title,category');
+        $this->assertResponseOk();
+
+        $expected = [
+            'success' => true, 
+            'code' => 200, 
+            'results' => [
+                'id' => '1',
+                'title' => 'Dpiu Fresco',
+                'category' => 'Discount'
+            ]
+        ];
+        $expected = json_encode($expected, JSON_PRETTY_PRINT);
+        $this->assertEquals($expected, (string)$this->_response->getBody());
+    }
+
+
+    /**
+     * test records per page results
+     */
+    public function testPAggingCountResult(){
+        $this->configRequest([
+            'headers' => ['Accept' => 'application/json']
+        ]);
+
+        //default page 1, limit 100
+        $this->get('/flyers.json');
+        $this->assertResponseOk();
+        $this->assertEquals(100, count(json_decode((string)$this->_response->getBody())->results));
+
+        // page 2, 14 valid results left
+        $this->get('/flyers.json?page=2');
+        $this->assertResponseOk();
+        $this->assertEquals(14, count(json_decode((string)$this->_response->getBody())->results));
+    }
 }
