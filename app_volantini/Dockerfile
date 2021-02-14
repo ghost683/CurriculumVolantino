@@ -32,6 +32,6 @@ RUN a2enmod rewrite
 
 #copy source files and run composer
 COPY . $APP_HOME
-RUN composer install --no-interaction --no-plugins --no-scripts
+RUN composer install --no-interaction
 
 RUN chown -R www-data:www-data $APP_HOME
