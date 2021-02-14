@@ -3,6 +3,7 @@
 namespace App\Controller;
 use App\Core\Utils\FlyersUtils;
 use Exception;
+use \Cake\Event\EventInterface;
 
 /**
  * This controller will return Flyers in json format
@@ -16,6 +17,8 @@ class FlyersController extends AppController
         parent::initialize();
         $this->loadComponent('RequestHandler');
     }
+   
+
 
     /**
      * retrive json response
@@ -104,6 +107,7 @@ class FlyersController extends AppController
             ]);
         
         $this->response = $this->response->withStatus($code);
+        $this->enableCors();
         $this->viewBuilder()
             ->setOption('serialize', ['success','code','error']);
     }
@@ -120,7 +124,17 @@ class FlyersController extends AppController
                 'code' => 200,
                 'results' => $result
             ]);
+        $this->enableCors();
         $this->viewBuilder()
             ->setOption('serialize', ['success','code', 'results']);
+    }
+
+    private function enableCors(){
+        $this->response = $this->response->cors($this->request)
+            ->allowOrigin(['*'])
+            ->allowMethods(['GET'])
+            ->exposeHeaders(['Link'])
+            ->maxAge(300)
+            ->build();
     }
 }
