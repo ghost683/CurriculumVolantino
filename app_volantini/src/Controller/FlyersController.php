@@ -3,7 +3,6 @@
 namespace App\Controller;
 use App\Core\Utils\FlyersUtils;
 use Exception;
-use \Cake\Event\EventInterface;
 
 /**
  * This controller will return Flyers in json format
