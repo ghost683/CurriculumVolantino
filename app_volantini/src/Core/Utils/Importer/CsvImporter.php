@@ -37,7 +37,7 @@ class CsvImporter extends SourceImporter
 
 
         if (($handle = fopen($filepath, "r")) !== FALSE) {
-            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE && $added <= $limit) {
+            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
                 // manage header line
                 if ($line == 1) {
                     if ($filters !== null) {
