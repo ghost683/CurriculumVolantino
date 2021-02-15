@@ -44,17 +44,18 @@ abstract class SourceImporter
      */
     protected static function extractRow(array $data, array $fields = null): array
     {
-        if ($fields !== null) {
-            $row = [];
-
-            foreach ($fields as $field) {
-                // retrive data by positional index of requested field
+        if($fields == null){
+            $fields = self::getAvailableFields();
+        }
+        $row = [];
+        foreach ($fields as $field) {
+            // retrive data by positional index of requested field
+            if($field == 'id' || $field == 'is_published'){
+                $row []= (int)$data[array_search($field, self::getAvailableFields())];
+            }else {
                 $row[] = $data[array_search($field, self::getAvailableFields())];
             }
-            return array_combine($fields, $row);
-        } else {
-            return  array_combine(self::getAvailableFields(), $data);
         }
+        return array_combine($fields, $row);
     }
-
 }
